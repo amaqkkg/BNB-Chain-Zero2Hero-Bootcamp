@@ -9,7 +9,7 @@ contract DogCoin {
         address _recipient;
     }
 
-    mapping(address => Payment[]) public historyTx;
+    mapping(address => Payment[]) public payments;
 
     event SupplyChanged(uint256);
     event TokenTransferred(uint256, address);
@@ -38,11 +38,15 @@ contract DogCoin {
 
     // we dont need sender address we check it in the next line.
     // if we set the sender address as parameter then everyone can transfer anyone token balances.
-    function transfer(uint256 _amount, address _recipient) public {
+    function transfer(address _recipient, uint256 _amount) public {
         require(balances[msg.sender] >= _amount, "not enough balance!");
         balances[msg.sender] -= _amount;
         balances[_recipient] += _amount;
-        historyTx[msg.sender].push(Payment(_amount, _recipient));
+        payments[msg.sender].push(Payment(_amount, _recipient));
         emit TokenTransferred(_amount, _recipient);
+    }
+
+    function getPayments(address _addr) public view returns (Payment[] memory) {
+        return payments[_addr];
     }
 }
