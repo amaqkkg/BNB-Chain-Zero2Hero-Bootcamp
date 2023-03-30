@@ -34,4 +34,29 @@ contract TestBadgerCoin is Test {
             "balance is not equal to 1000"
         );
     }
+
+    function testRevertMintWhen_NotOwner() public {
+        vm.prank(address(0));
+        vm.expectRevert();
+        badgerCoin.mint(address(0), 1);
+    }
+
+    function testTransferFrom() public {
+        badgerCoin.mint(address(123), 1000);
+        vm.prank(address(123));
+        badgerCoin.approve(address(234), 500);
+        vm.prank(address(234));
+        badgerCoin.transferFrom(address(123), address(1), 250);
+        assertEq(badgerCoin.balanceOf(address(1)), 250);
+    }
+
+    function testRevertTransferFrom_whenPaused() public {
+        badgerCoin.mint(address(123), 1000);
+        vm.prank(address(123));
+        badgerCoin.approve(address(234), 500);
+        badgerCoin.pause();
+        vm.prank(address(234));
+        vm.expectRevert();
+        badgerCoin.transferFrom(address(123), address(1), 250);
+    }
 }
